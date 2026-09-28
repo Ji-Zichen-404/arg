@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>✦</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#000;
+    overflow:hidden;
+    height:100vh;
+    font-family:-apple-system,sans-serif;
+  }
+  #world {
+    position:absolute;
+    top:0; left:0;
+    width:6000px;
+    height:6000px;
+    transition:transform 1.2s cubic-bezier(0.4,0,0.2,1);
+    transform-origin:0 0;
+  }
+  .star {
+    position:absolute;
+    width:14px; height:14px;
+    border-radius:50%;
+    background:#fff;
+    box-shadow:0 0 12px 3px rgba(255,255,255,0.85);
+    cursor:pointer;
+    transition:transform 0.3s, box-shadow 0.3s;
+    transform:translate(-50%,-50%);
+  }
+  .star:hover { transform:translate(-50%,-50%) scale(1.4); }
+  .star.active {
+    box-shadow:0 0 20px 6px rgba(120,200,255,0.95);
+    background:#9fd8ff;
+  }
+  #msg {
+    position:fixed;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    color:#fff;
+    font-size:18px;
+    line-height:1.8;
+    text-align:center;
+    opacity:0;
+    transition:opacity 1.2s;
+    pointer-events:none;
+    padding:24px;
+    max-width:90vw;
+    word-break:break-all;
+  }
+  #msg.show { opacity:1; pointer-events:auto; }
+  #msg a { color:#9fd8ff; text-decoration:none; }
+  .hint {
+    position:fixed;
+    bottom:24px; left:0; right:0;
+    text-align:center;
+    color:rgba(255,255,255,0.25);
+    font-size:12px;
+    letter-spacing:2px;
+  }
+</style>
+</head>
+<body>
+
+<div id="world"></div>
+<div id="msg"></div>
+<div class="hint">— 找到第一颗，然后顺着光 —</div>
+
+<script>
+(function(){
+  const world = document.getElementById('world');
+  const msgEl = document.getElementById('msg');
+  const TOTAL = 9;
+
+  // 生成星星坐标（伪随机但固定）
+  const positions = [];
+  const seed = [
+    [800,900],[1600,600],[2600,1200],[1300,2000],[2200,2600],
+    [900,2800],[2900,3000],[1800,3400],[2500,1800]
+  ];
+  for (let i=0;i<TOTAL;i++){
+    const [x,y] = seed[i] || [Math.random()*4000+500, Math.random()*4000+500];
+    positions.push({x,y});
+  }
+
+  const stars = [];
+  for (let i=0;i<TOTAL;i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = positions[i].x + 'px';
+    s.style.top  = positions[i].y + 'px';
+    world.appendChild(s);
+    stars.push(s);
+  }
+
+  let current = 0;       // 当前应该点的星星
+  let locked = false;
+
+  function moveTo(index){
+    const {x,y} = positions[index];
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    world.style.transform =
+      `translate(${vw/2 - x}px, ${vh/2 - y}px)`;
+  }
+
+  function highlight(index){
+    stars.forEach((s,i)=>s.classList.toggle('active', i===index));
+  }
+
+  function reset(){
+    current = 0;
+    highlight(0);
+    moveTo(0);
+  }
+
+  stars.forEach((s,i)=>{
+    s.addEventListener('click',()=>{
+      if (locked) return;
+
+      if (i === current){
+        current++;
+        if (current >= TOTAL){
+          // 通关
+          locked = true;
+          msgEl.innerHTML =
+            '试试将它拼到网址后缀吧，以后你们会经常用到它的：' +
+            '<br><br>' +
+            '<strong>BEINGMISSINGISJUSTANILLUSION</strong>' +
+            '<br><br>' +
+            '示例：https://这个网页的链接/BEINGMISSINGISJUSTANILLUSION';
+          msgEl.classList.add('show');
+        } else {
+          highlight(current);
+          moveTo(current);
+        }
+      } else {
+        // 点错了，回到第一颗
+        reset();
+      }
+    });
+  });
+
+  // 初始居中第一颗
+  reset();
+  window.addEventListener('resize',()=>moveTo(current));
+})();
+</script>
+</body>
+  </html>
