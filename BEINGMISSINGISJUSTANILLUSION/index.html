@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>···</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#000;
+    height:100vh;
+    overflow:hidden;
+    font-family:-apple-system,sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    opacity:0;
+    transition:opacity 1.5s;
+  }
+  body.show { opacity:1; }
+  .stage {
+    width:90%;
+    max-width:480px;
+    text-align:center;
+  }
+  #prompt {
+    font-size:18px;
+    color:rgba(180,220,255,0.9);
+    letter-spacing:2px;
+    margin-bottom:32px;
+    text-shadow:0 0 12px rgba(120,200,255,0.5);
+  }
+  input {
+    width:100%;
+    padding:14px 18px;
+    background:rgba(20,40,60,0.6);
+    border:1px solid rgba(120,200,255,0.35);
+    border-radius:12px;
+    color:#d8ecff;
+    font-size:16px;
+    text-align:center;
+    outline:none;
+    letter-spacing:4px;
+    transition:border 0.3s, box-shadow 0.3s;
+  }
+  input:focus {
+    border-color:rgba(120,200,255,0.9);
+    box-shadow:0 0 20px rgba(120,200,255,0.35);
+  }
+  button {
+    margin-top:16px;
+    width:100%;
+    padding:14px;
+    background:rgba(120,200,255,0.15);
+    border:1px solid rgba(120,200,255,0.4);
+    border-radius:12px;
+    color:#9fd8ff;
+    font-size:16px;
+    letter-spacing:4px;
+    cursor:pointer;
+    transition:background 0.3s, transform 0.15s;
+  }
+  button:active { transform:scale(0.97); background:rgba(120,200,255,0.3); }
+  #result {
+    margin-top:24px;
+    font-size:14px;
+    color:rgba(180,220,255,0.7);
+    min-height:24px;
+    letter-spacing:1px;
+  }
+  #result.error { color:rgba(255,120,120,0.8); }
+  #result.ok {
+    color:#9fd8ff;
+    font-size:20px;
+    letter-spacing:6px;
+    text-shadow:0 0 16px rgba(120,200,255,0.8);
+  }
+  #hint {
+    margin-top:48px;
+    font-size:12px;
+    color:rgba(120,180,220,0.35);
+    letter-spacing:1px;
+    line-height:1.8;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div id="prompt">对无尽的深海说些什么…</div>
+  <input id="answer" type="text" autocomplete="off" placeholder="· · ·" />
+  <button id="send">发送</button>
+  <div id="result"></div>
+  <div id="hint">HINT：先人筑塔锁妖，始于何时，亦于公告之中，YYYYMMDD</div>
+</div>
+
+<script>
+(function(){
+  const body = document.body;
+  const answer = document.getElementById('answer');
+  const send = document.getElementById('send');
+  const result = document.getElementById('result');
+
+  setTimeout(()=>body.classList.add('show'), 1000);
+
+  function submit(){
+    const val = answer.value.trim();
+    if (val === '07700505'){
+      result.className = 'ok';
+      result.innerHTML =
+        'HYPERSPACE' +
+        '<div style="font-size:13px; color:rgba(180,220,255,0.6); ' +
+        'letter-spacing:1px; margin-top:16px; line-height:1.8; font-weight:normal;">' +
+        ' ' +
+        '<span style="color:#9fd8ff;"></span>' +
+        '</div>';
+    } else {
+      result.className = 'error';
+      result.textContent = '深海并未理会';
+    }
+  }
+
+  send.addEventListener('click', submit);
+  answer.addEventListener('keydown', e=>{
+    if (e.key === 'Enter') submit();
+  });
+})();
+</script>
+</body>
+</html>
