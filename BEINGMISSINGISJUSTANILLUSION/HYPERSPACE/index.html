@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>亚空间</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#000;
+    min-height:100vh;
+    overflow-x:hidden;
+    font-family:-apple-system,sans-serif;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    transition:background 0.5s;
+  }
+  body.error {
+    background:#2a0000;
+    animation:shake 0.5s;
+  }
+  @keyframes shake {
+    0%,100% { transform:translateX(0); }
+    25% { transform:translateX(-10px); }
+    75% { transform:translateX(10px); }
+  }
+  .stage {
+    width:100%;
+    max-width:520px;
+    min-width:0;
+  }
+  h1 {
+    font-size:20px;
+    font-weight:600;
+    color:#d8ecff;
+    letter-spacing:2px;
+    margin-bottom:8px;
+    text-align:center;
+    line-height:1.5;
+  }
+  .subtitle {
+    font-size:12px;
+    color:rgba(120,180,220,0.5);
+    letter-spacing:2px;
+    text-align:center;
+    margin-bottom:32px;
+  }
+  .cipher-box {
+    background:rgba(20,40,60,0.5);
+    border:1px solid rgba(120,200,255,0.25);
+    border-radius:12px;
+    padding:18px;
+    margin-bottom:24px;
+    text-align:center;
+  }
+  .cipher-label {
+    font-size:11px;
+    color:rgba(120,180,220,0.5);
+    letter-spacing:2px;
+    margin-bottom:8px;
+  }
+  .cipher-text {
+    font-family:monospace;
+    font-size:14px;
+    color:#9fd8ff;
+    word-break:break-all;
+    letter-spacing:1px;
+    line-height:1.6;
+    min-height:20px;
+    transition:opacity 0.15s;
+  }
+  .key-row {
+    display:flex;
+    gap:12px;
+    margin-bottom:16px;
+    width:100%;
+  }
+  .key-row input {
+    flex:1 1 0;
+    min-width:0;
+    width:0;
+    padding:12px 14px;
+    background:rgba(20,40,60,0.6);
+    border:1px solid rgba(120,200,255,0.35);
+    border-radius:10px;
+    color:#d8ecff;
+    font-size:14px;
+    text-align:center;
+    outline:none;
+    letter-spacing:2px;
+    font-family:monospace;
+    transition:border 0.3s, box-shadow 0.3s;
+  }
+  .key-row input:focus {
+    border-color:rgba(120,200,255,0.9);
+    box-shadow:0 0 16px rgba(120,200,255,0.35);
+  }
+  .key-row input::placeholder {
+    color:rgba(120,180,220,0.4);
+    font-size:13px;
+    letter-spacing:1px;
+  }
+  button.confirm {
+    width:100%;
+    padding:14px;
+    background:rgba(120,200,255,0.15);
+    border:1px solid rgba(120,200,255,0.4);
+    border-radius:12px;
+    color:#9fd8ff;
+    font-size:16px;
+    letter-spacing:4px;
+    cursor:pointer;
+    transition:background 0.3s, transform 0.15s;
+  }
+  button.confirm:active {
+    transform:scale(0.97);
+    background:rgba(120,200,255,0.3);
+  }
+  #result {
+    margin-top:24px;
+    text-align:center;
+    font-size:14px;
+    letter-spacing:2px;
+    min-height:24px;
+    transition:color 0.3s;
+    line-height:1.6;
+  }
+  #result.error { color:#ff7878; }
+  #result.ok { color:#9fd8ff; }
+  details {
+    margin-top:32px;
+    font-size:13px;
+    color:rgba(180,220,255,0.65);
+    line-height:1.8;
+    border-top:1px solid rgba(120,200,255,0.15);
+    padding-top:16px;
+  }
+  details summary {
+    cursor:pointer;
+    color:rgba(120,180,220,0.7);
+    letter-spacing:1px;
+    outline:none;
+    user-select:none;
+  }
+  details summary:hover { color:#9fd8ff; }
+  details div { margin-top:12px; padding-left:4px; }
+  details .red { color:#ff7878; font-weight:600; }
+  #hint {
+    margin-top:24px;
+    text-align:center;
+    font-size:12px;
+    color:rgba(120,180,220,0.35);
+    letter-spacing:2px;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <h1>您正在尝试访问亚空间，请提供权限令牌</h1>
+  <div class="subtitle">HYPERSPACE · 权限验证</div>
+
+  <div class="cipher-box">
+    <div class="cipher-label">当前密文</div>
+    <div class="cipher-text" id="cipher">···</div>
+  </div>
+
+  <div class="key-row">
+    <input id="keyL" type="text" autocomplete="off" placeholder="左密钥" maxlength="12" inputmode="numeric" />
+    <input id="keyR" type="text" autocomplete="off" placeholder="右密钥" maxlength="12" inputmode="numeric" />
+  </div>
+
+  <button class="confirm" id="confirm">确 定</button>
+  <div id="result"></div>
+
+  <details>
+    <summary>什么是权限令牌？</summary>
+    <div>
+      权限令牌是使用 <span class="red">CHAOCIPHER</span> 加密的。
+      访问 <span class="red">/HYPERSPACE/CHAOCIPHER</span> 可以获得两个数字时钟 ——
+      <b>北京时间</b>和<b>伏尔加格勒时间</b>，也许它们的位置与密钥有关？
+    </div>
+  </details>
+
+  <div id="hint">HINT: YYYYMMDDHHmm</div>
+</div>
+
+<script>
+(function(){
+  const PLAIN = 'This is a Easter egg';
+  const cipherEl = document.getElementById('cipher');
+  const keyLEl = document.getElementById('keyL');
+  const keyREl = document.getElementById('keyR');
+  const confirmBtn = document.getElementById('confirm');
+  const resultEl = document.getElementById('result');
+  const body = document.body;
+
+  // ===== 时间工具 =====
+  function getBeijingTime() {
+    const now = new Date();
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+    return new Date(utc + 8 * 3600 * 1000);
+  }
+  function getVolgogradTime() {
+    const now = new Date();
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+    return new Date(utc + 3 * 3600 * 1000);
+  }
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function fmtMinute(d) {
+    return d.getFullYear() +
+           pad(d.getMonth()+1) +
+           pad(d.getDate()) +
+           pad(d.getHours()) +
+           pad(d.getMinutes());
+  }
+  function fmtSecond(d) { return pad(d.getSeconds()); }
+
+  // ===== 占位加密（XOR + Base64）=====
+  function chaoEncrypt(text, keyL, keyR) {
+    const combined = keyL + keyR;
+    let result = '';
+    for (let i = 0; i < text.length; i++) {
+      const c = text.charCodeAt(i) ^ combined.charCodeAt(i % combined.length);
+      result += String.fromCharCode(c & 0xff);
+    }
+    try { return btoa(result); } catch (e) { return 'ENCODE_ERROR'; }
+  }
+
+  // ===== 密文每秒刷新（密钥是分钟级，但密文里混入秒数扰动，看起来更"活"）=====
+  function refreshCipher() {
+    const kL = fmtMinute(getBeijingTime());
+    const kR = fmtMinute(getVolgogradTime());
+    const sec = fmtSecond(getBeijingTime());
+    // 用秒数扰动密钥，让密文每秒都在变
+    const cipher = chaoEncrypt(PLAIN, kL + sec, kR);
+    cipherEl.style.opacity = '0.6';
+    cipherEl.textContent = cipher;
+    setTimeout(() => { cipherEl.style.opacity = '1'; }, 80);
+  }
+
+  // ===== 密钥校验（容差 ±60 秒）=====
+  function parseKey(s) {
+    if (!/^\d{12}$/.test(s)) return null;
+    const y  = parseInt(s.slice(0,4), 10);
+    const mo = parseInt(s.slice(4,6), 10) - 1;
+    const da = parseInt(s.slice(6,8), 10);
+    const h  = parseInt(s.slice(8,10), 10);
+    const mi = parseInt(s.slice(10,12), 10);
+    const d = new Date(y, mo, da, h, mi);
+    return isNaN(d.getTime()) ? null : d.getTime();
+  }
+  function withinOneMinute(input, target) {
+    const t1 = parseKey(input);
+    const t2 = parseKey(target);
+    if (t1 === null || t2 === null) return false;
+    return Math.abs(t1 - t2) <= 60000;
+  }
+
+  confirmBtn.addEventListener('click', function(){
+    const inputL = keyLEl.value.trim();
+    const inputR = keyREl.value.trim();
+    const beijing   = fmtMinute(getBeijingTime());
+    const volgograd = fmtMinute(getVolgogradTime());
+
+    if (withinOneMinute(inputL, beijing) && withinOneMinute(inputR, volgograd)) {
+      resultEl.className = 'ok';
+      resultEl.innerHTML =
+        '令牌有效，正在访问' +
+        '<br><span style="font-size:12px;opacity:0.7;">访问编号: 0c3a</span>';
+      body.classList.remove('error');
+      setTimeout(function(){
+        location.href = 'https://wwbdv.lanzouw.com/icVw64aa4lni';
+      }, 2000);
+
+      body.classList.remove('error');
+    } else {
+      resultEl.className = 'error';
+      resultEl.textContent = '令牌无效，访问被拒绝';
+      body.classList.add('error');
+      setTimeout(()=>body.classList.remove('error'), 1000);
+    }
+  });
+
+  // ===== 启动 =====
+  refreshCipher();
+  setInterval(refreshCipher, 1000);
+})();
+</script>
+</body>
+      </html>
