@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>CHAOCIPHER</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#000;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:-apple-system,sans-serif;
+    color:#fff;
+    padding:24px;
+  }
+  .wrap {
+    display:flex;
+    gap:24px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .clock {
+    width:220px;
+    text-align:center;
+    padding:24px 16px;
+    background:rgba(20,40,60,0.5);
+    border:1px solid rgba(120,200,255,0.25);
+    border-radius:16px;
+  }
+  .clock .city {
+    font-size:12px;
+    color:rgba(120,180,220,0.6);
+    letter-spacing:3px;
+    margin-bottom:16px;
+  }
+  .clock .time {
+    font-family:monospace;
+    font-size:48px;
+    font-weight:700;
+    color:#9fd8ff;
+    letter-spacing:2px;
+    text-shadow:0 0 20px rgba(120,200,255,0.5);
+    line-height:1;
+  }
+  .clock .seconds {
+    font-family:monospace;
+    font-size:14px;
+    color:rgba(120,180,220,0.4);
+    margin-top:8px;
+    letter-spacing:2px;
+  }
+  .title {
+    position:fixed;
+    top:24px; left:0; right:0;
+    text-align:center;
+    font-size:13px;
+    color:rgba(120,180,220,0.4);
+    letter-spacing:4px;
+  }
+</style>
+</head>
+<body>
+<div class="title">CHAOCIPHER · 双时钟同步源</div>
+<div class="wrap">
+  <div class="clock">
+    <div class="city">BEIJING-Left</div>
+    <div class="time" id="timeBJ">--:--</div>
+    <div class="seconds" id="secBJ">--</div>
+  </div>
+  <div class="clock">
+    <div class="city">VOLGOGRAD-Right</div>
+    <div class="time" id="timeVG">--:--</div>
+    <div class="seconds" id="secVG">--</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  function getBj() {
+    const now = new Date();
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+    return new Date(utc + 8 * 3600 * 1000);
+  }
+  function getVg() {
+    const now = new Date();
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+    return new Date(utc + 3 * 3600 * 1000);
+  }
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function fmtHM(d) { return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+  function fmtS(d) { return pad(d.getSeconds()); }
+
+  function tick() {
+    const bj = getBj();
+    const vg = getVg();
+    document.getElementById('timeBJ').textContent = fmtHM(bj);
+    document.getElementById('secBJ').textContent  = fmtS(bj);
+    document.getElementById('timeVG').textContent = fmtHM(vg);
+    document.getElementById('secVG').textContent  = fmtS(vg);
+  }
+
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>
+</body>
+</html>
